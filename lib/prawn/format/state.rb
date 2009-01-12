@@ -12,6 +12,8 @@ module Prawn
           merge(options[:style] || {})
 
         compute_styles!
+
+        @style[:kerning] = font.has_kerning_data? unless @style.key?(:kerning)
       end
 
       def inheritable_style

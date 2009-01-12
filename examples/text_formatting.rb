@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require "prawn"
 require "prawn/format"
 
-Prawn::Document.generate("text_formatting.pdf", :compress => true) do
+Prawn::Document.generate("text_formatting.pdf") do
   styles[:p][:text_align] = :justify
 
   styles[:stave] = {

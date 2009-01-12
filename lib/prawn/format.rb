@@ -127,9 +127,20 @@ module Prawn
         end
       end
     end
+
+    def text_object
+      object = TextObject.new
+
+      if block_given?
+        yield object.open
+        add_content(object.close)
+      end
+
+      return object
+    end
+
   end
 end
 
 require 'prawn/document'
 Prawn::Document.send(:include, Prawn::Format)
-Prawn::Document.send(:include, Prawn::Format::TextObject)

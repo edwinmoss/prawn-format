@@ -46,5 +46,5 @@ Prawn::Document.generate("text_formatting.pdf") do
   end
 
   start_new_page
-  paginate(File.read("#{File.dirname(__FILE__)}/christmas-carol.html"))
+  format(File.read("#{File.dirname(__FILE__)}/christmas-carol.html"))
 end

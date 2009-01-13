@@ -3,6 +3,19 @@ require 'prawn/format/text_object'
 
 module Prawn
   module Format
+    def self.included(mod)
+      mod.send :alias_method, :text_without_formatting, :text
+      mod.send :alias_method, :text, :text_with_formatting
+    end
+
+    def text_with_formatting(text, options={})
+      if options[:plain] || text !~ /[<&]/
+        text_without_formatting(text, options)
+      else
+        format(text, options)
+      end
+    end
+
     DEFAULT_STYLES = {
       :b      => { :font_weight => :bold },
       :i      => { :font_style => :italic },
@@ -66,8 +79,7 @@ module Prawn
     end
 
     def draw_lines(x, y, width, lines, options={})
-      real_x = x + bounds.absolute_left
-      real_y = y + bounds.absolute_bottom
+      real_x, real_y = translate(x, y)
 
       state = options[:state] || {}
       return options[:state] if lines.empty?
@@ -100,12 +112,22 @@ module Prawn
     end
 
     def format(text, options={})
-      layout(text, options) do |helper|
-        self.y = helper.fill(bounds.left, y - bounds.absolute_bottom, options.merge(:width => bounds.width, :height => bounds.height))
+      if options[:at]
+        x, y = options[:at]
+        format_positioned_text(text, x, y, options)
+      else
+        format_wrapped_text(text, options)
       end
     end
 
-    def paginate(text, options={})
+    def format_positioned_text(text, x, y, options={})
+      helper = layout(text, options)
+      helper.width = 1_000_000 # large number to prevent wrapping
+      line = helper.next
+      draw_lines(x, y+line.ascent, line.width, [line], options)
+    end
+
+    def format_wrapped_text(text, options={})
       helper  = layout(text, options)
 
       columns = (options[:columns] || 1).to_i
@@ -114,10 +136,10 @@ module Prawn
       column  = 0
 
       until helper.done?
-        x = bounds.left + column * width
+        x = column * width
         y = self.y - bounds.absolute_bottom
 
-        helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height))
+        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height))
 
         unless helper.done?
           column += 1

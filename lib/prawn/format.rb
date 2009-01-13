@@ -134,18 +134,21 @@ module Prawn
       gap     = options[:gap]     || 18
       width   = bounds.width.to_f / columns
       column  = 0
+      top     = self.y
 
       until helper.done?
         x = column * width
         y = self.y - bounds.absolute_bottom
 
-        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height))
+        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height)) + bounds.absolute_bottom
 
         unless helper.done?
           column += 1
+          self.y = top
           if column >= columns
             start_new_page
             column = 0
+            top = self.y
           end
         end
       end

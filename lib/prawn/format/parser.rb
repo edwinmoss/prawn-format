@@ -104,7 +104,8 @@ module Prawn
               instruction = text_parse
             when :open
               @tag_stack << @token
-              @token[:style] = @styles[@token[:tag]] or raise TagError, "undefined tag #{@token[:tag]}"
+              raise TagError, "undefined tag #{@token[:tag]}" unless @styles[@token[:tag]]
+              @token[:style] = @styles[@token[:tag]].dup
 
               if @token[:style][:meta]
                 @token[:style][:meta].each do |key, value|

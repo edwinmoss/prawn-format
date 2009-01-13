@@ -70,6 +70,7 @@ module Prawn
         line_width = @box.width
 
         while (instruction = @parser.next)
+          next if line.empty? && instruction.discardable? # ignore discardables at line start
           line.push(instruction)
 
           if instruction.start_box? && line.length > 1

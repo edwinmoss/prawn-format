@@ -17,20 +17,20 @@ module Prawn
     end
 
     DEFAULT_STYLES = {
-      :b      => { :font_weight => :bold },
-      :i      => { :font_style => :italic },
-      :u      => { :text_decoration => :underline },
-      :br     => { :display => :break },
-      :page   => { :display => :page_break },
-      :p      => { :display => :block, :text_indent => "3em" },
-      :sup    => { :vertical_align => :super, :font_size => "70%" },
-      :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
-      :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
+      :b      => { :font_weight => :bold },
+      :br     => { :display => :break },
       :center => { :display => :block, :text_align => :center },
+      :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
       :h1     => { :display => :block, :text_align => :center, :font_size => "3em", :font_weight => :bold, :margin_bottom => "1em" },
       :h2     => { :display => :block, :text_align => :center, :font_size => "2em", :font_weight => :bold, :margin_bottom => "1em" },
       :h3     => { :display => :block, :text_align => :center, :font_size => "1.2em", :font_weight => :bold, :margin_bottom => "1em" },
+      :i      => { :font_style => :italic },
+      :p      => { :display => :block, :text_indent => "3em" },
+      :page   => { :display => :page_break },
+      :sub    => { :vertical_align => :sub, :font_size => "70%" },
+      :sup    => { :vertical_align => :super, :font_size => "70%" },
+      :u      => { :text_decoration => :underline },
     }.freeze
 
     def styles(update={})

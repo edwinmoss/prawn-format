@@ -40,5 +40,5 @@ Prawn::Document.generate("custom-styles.pdf") do
   }
 
   font "Times-Roman", :size => 14
-  format(File.read("#{File.dirname(__FILE__)}/christmas-carol.html"))
+  text(File.read("#{File.dirname(__FILE__)}/christmas-carol.html"))
 end

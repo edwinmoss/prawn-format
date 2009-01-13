@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require "prawn"
 require "prawn/format"
 
-Prawn::Document.generate("text_formatting.pdf") do
+Prawn::Document.generate("custom-styles.pdf") do
   styles[:p][:text_align] = :justify
 
   styles[:h1][:margin_top] = 144

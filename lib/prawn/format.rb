@@ -13,6 +13,7 @@ module Prawn
       :sup    => { :vertical_align => :super, :font_size => "70%" },
       :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
+      :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
       :center => { :display => :block, :text_align => :center },
       :h1     => { :display => :block, :text_align => :center, :font_size => "3em", :font_weight => :bold, :margin_bottom => "1em" },
       :h2     => { :display => :block, :text_align => :center, :font_size => "2em", :font_weight => :bold, :margin_bottom => "1em" },

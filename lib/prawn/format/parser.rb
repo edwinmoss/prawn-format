@@ -108,7 +108,7 @@ module Prawn
 
               if @token[:style][:meta]
                 @token[:style][:meta].each do |key, value|
-                  @token[:options][value] = @token[:options][key]
+                  @token[:style][value] = @token[:options][key]
                 end
               end
 

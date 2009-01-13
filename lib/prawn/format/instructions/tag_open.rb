@@ -45,12 +45,12 @@ module Prawn
           end
 
           def draw_destination(document, draw_state)
-            return unless tag[:options][:anchor]
+            return unless tag[:style][:anchor]
 
             x = draw_state[:real_x]
             y = draw_state[:real_y] + draw_state[:dy] + ascent
 
-            label, destination = case tag[:options][:anchor]
+            label, destination = case tag[:style][:anchor]
               when /^zoom=([\d\.]+):(.*)$/
                 [$2, document.dest_xyz(x, y, $1.to_f)]
               when /^fit:(.*)$/
@@ -66,15 +66,15 @@ module Prawn
               when /^fitbv:(.*)$/
                 [$1, document.dest_fit_bounds_vertically(x)]
               else
-                [tag[:options][:anchor], document.dest_xyz(document.bounds.absolute_left, document.bounds.absolute_top, nil)]
+                [tag[:style][:anchor], document.dest_xyz(document.bounds.absolute_left, document.bounds.absolute_top, nil)]
               end
 
             document.add_dest(label, destination)
           end
 
           def draw_link(document, draw_state)
-            return unless tag[:options][:target]
-            add_effect(Effects::Link.new(tag[:options][:target], draw_state[:dx]), draw_state)
+            return unless tag[:style][:target]
+            add_effect(Effects::Link.new(tag[:style][:target], draw_state[:dx]), draw_state)
           end
 
           def draw_underline(document, draw_state)

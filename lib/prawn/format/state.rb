@@ -138,6 +138,8 @@ module Prawn
           evaluate_style(:font_size, 12, :current)
           evaluate_style(:text_indent, nil, :current)
           evaluate_style(:vertical_align, 0, font_size, :super => "+40%", :sub => "-30%")
+
+          @style[:color] = evaluate_color(@style[:color])
         end
 
         def evaluate_style(which, default, relative_to, mappings={})
@@ -146,6 +148,39 @@ module Prawn
           @style[which] = document.evaluate_measure(@style[which],
             :em => @previous && @previous.font_size || 12,
             :current => current, :relative => relative_to, :mappings => mappings) || default
+        end
+
+        HTML_COLORS = {
+          "aqua"    => "00FFFF",
+          "black"   => "000000",
+          "blue"    => "0000FF",
+          "fuchsia" => "FF00FF",
+          "gray"    => "808080",
+          "green"   => "008000",
+          "lime"    => "00FF00",
+          "maroon"  => "800000",
+          "navy"    => "000080",
+          "olive"   => "808000",
+          "purple"  => "800080",
+          "red"     => "FF0000",
+          "silver"  => "C0C0C0",
+          "teal"    => "008080",
+          "white"   => "FFFFFF",
+          "yellow"  => "FFFF00"
+        }
+
+        def evaluate_color(color)
+          case color
+          when nil then nil
+          when /^\s*#?([a-f0-9]{3})\s*$/ then
+            return $1.gsub(/./, '\&0')
+          when /^\s*#?([a-f0-9]+)$\s*/ then
+            return $1
+          when /^\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/
+            return "%02x%02x%02x" % [$1.to_i, $2.to_i, $3.to_i]
+          else
+            return HTML_COLORS[color.strip.downcase]
+          end
         end
     end
   end

@@ -2,19 +2,38 @@ module Prawn
   module Format
 
     class Line
+      attr_reader :source
       attr_reader :instructions
       attr_reader :box
 
       def initialize(instructions, hard_break, box)
-        @instructions = instructions
-        @length = instructions.length
-        @length -= 1 while @length > 0 && @instructions[@length-1].discardable?
+        # need to remember the "source" instructions, because lines can
+        # pushed back onto the stack en masse when flowing into boxes,
+        # if a line is discovered to not fit. Thus, a line must preserve
+        # all instructions it was originally given.
+
+        @source = instructions
 
         @hard_break = hard_break
         @box = box
+      end
 
-        @spaces = @instructions[0,@length].inject(0) { |sum, instruction| sum + instruction.spaces }
-        @spaces = [1, @spaces].max
+      def instructions
+        @instructions ||= begin
+          instructions = source.dup
+
+          # ignore discardable items at the end of lines
+          instructions.pop while instructions.any? && instructions.last.discardable?
+
+          consolidate(instructions)
+        end
+      end
+
+      def spaces
+        @spaces ||= begin
+          spaces = instructions.inject(0) { |sum, instruction| sum + instruction.spaces }
+          [1, spaces].max
+        end
       end
 
       def hard_break?
@@ -22,7 +41,7 @@ module Prawn
       end
 
       def width
-        instructions[0,@length].inject(0) { |sum, instruction| sum + instruction.width }
+        instructions.inject(0) { |sum, instruction| sum + instruction.width }
       end
 
       # distance from top of line to baseline
@@ -46,10 +65,6 @@ module Prawn
         instructions.map { |instruction| instruction.height(include_blank) }.max
       end
 
-      def each
-        instructions[0,@length].each { |instruction| yield instruction }
-      end
-
       def start_of_box?
         instructions.first.start_box?
       end
@@ -63,7 +78,7 @@ module Prawn
       end
 
       def draw_on(document, state, options={})
-        return if @length.zero?
+        return if instructions.empty?
 
         format_state = instructions.first.state
 
@@ -76,7 +91,7 @@ module Prawn
           state[:dx] = box.width - width
         when :justify
           state[:dx] = 0
-          state[:padding] = hard_break? ? 0 : (box.width - width) / @spaces
+          state[:padding] = hard_break? ? 0 : (box.width - width) / spaces
           state[:text].word_space(state[:padding])
         end
 
@@ -87,16 +102,18 @@ module Prawn
         state[:text].move_to(state[:dx], state[:dy])
         state[:line] = self
 
-        state[:accumulator] = nil
-
-        each { |instruction| instruction.draw(document, state, options) }
-
-        state[:accumulator].flush(document, state) if state[:accumulator]
+        instructions.each { |instruction| instruction.draw(document, state, options) }
         state[:pending_effects].each { |effect| effect.wrap(document, state) }
 
         state[:dy] -= (options[:spacing] || 0) + (font_height - ascent)
         state[:dy] -= box.margin_bottom if end_of_box?
       end
+
+      private
+
+        def consolidate(list)
+          list.inject([]) { |l,i| i.accumulate(l) }
+        end
     end
 
   end

@@ -114,7 +114,7 @@ module Prawn
       end
 
       def unget(line)
-        @parser.push(line.instructions.pop) while line.instructions.any?
+        line.source.reverse_each { |instruction| @parser.push(instruction) }
       end
 
       def translate_prawn_options(style, options)

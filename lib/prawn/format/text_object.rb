@@ -98,7 +98,7 @@ module Prawn
       end
 
       def add_content(string)
-        @content << string << "\n"
+        @content << string << " "
       end
     end
   end

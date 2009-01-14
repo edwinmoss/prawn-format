@@ -54,11 +54,18 @@ module Prawn
           {}
         end
 
-        def flush(document, draw_state)
-          if draw_state[:accumulator]
-            draw_state[:accumulator].draw!(document, draw_state)
-            draw_state.delete(:accumulator)
+        def compatible?(with)
+          false
+        end
+
+        def accumulate(list)
+          if list.any? && list.last.compatible?(self)
+            list.last.append(self)
+          else
+            list.push(dup)
           end
+
+          list
         end
       end
 

@@ -22,7 +22,6 @@ module Prawn
         end
 
         def draw(document, draw_state, options={})
-          flush(document, draw_state)
           (@tag[:effects] || []).each do |effect|
             effect.finish(document, draw_state)
             draw_state[:pending_effects].delete(effect)

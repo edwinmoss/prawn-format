@@ -19,8 +19,6 @@ module Prawn
         end
 
         def draw(document, draw_state, options={})
-          flush(document, draw_state)
-
           draw_text_indent(document, draw_state)
           draw_destination(document, draw_state)
           draw_link(document, draw_state)

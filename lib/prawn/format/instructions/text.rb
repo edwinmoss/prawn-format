@@ -13,8 +13,16 @@ module Prawn
           state.font.normalize_encoding(@text)
         end
 
-        def append(text)
-          @text << text
+        def dup
+          # can't pass @text to constructor because constructor tries to
+          # normalize the encoding, which has already been normalized for @text
+          object = self.class.new(state, "")
+          object.append(self)
+          object
+        end
+
+        def append(instruction)
+          @text << instruction.text
         end
 
         def spaces
@@ -39,6 +47,10 @@ module Prawn
           @discardable = (@text =~ /\s/)
         end
 
+        def compatible?(with)
+          with.is_a?(self.class) && with.state == state
+        end
+
         def width(type=:all)
           @width ||= @state.font.width_of(@text, :size => @state.font_size, :kerning => @state.kerning?)
 
@@ -54,18 +66,6 @@ module Prawn
         end
 
         def draw(document, draw_state, options={})
-          if options[:force] 
-            draw!(document, draw_state)
-          else
-            if draw_state[:accumulator] && draw_state[:accumulator].state != state
-              flush(document, draw_state)
-            end
-            draw_state[:accumulator] ||= self.class.new(state, "")
-            draw_state[:accumulator].append(@text)
-          end
-        end
-
-        def draw!(document, draw_state)
           @state.apply!(draw_state[:text], draw_state[:cookies])
 
           encoded_text = @state.font.encode_text(@text, :kerning => @state.kerning?)

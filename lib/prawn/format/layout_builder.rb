@@ -11,7 +11,10 @@ module Prawn
         @document = document
         @options  = options
         @styles   = document.styles.merge(options[:styles] || {})
-        style     = document.default_style.merge(options[:style] || {})
+        style     = document.default_style.merge(options[:default_style] || {})
+
+        translate_prawn_options(style, options)
+
         @parser   = Parser.new(@document, text, :styles => @styles, :style => style)
         @state    = {}
         @box      = Box.new(nil, @parser.state)
@@ -112,6 +115,22 @@ module Prawn
 
       def unget(line)
         @parser.push(line.instructions.pop) while line.instructions.any?
+      end
+
+      def translate_prawn_options(style, options)
+        style[:text_align] = options[:align] if options.key?(:align)
+        style[:kerning] = options[:kerning] if options.key?(:kerning)
+        style[:font_size] = options[:size] if options.key?(:size)
+
+        case options[:style]
+        when :bold then
+          style[:font_weight] = :bold
+        when :italic then
+          style[:font_style] = :italic
+        when :bold_italic then
+          style[:font_weight] = :bold
+          style[:font_style] = :italic
+        end
       end
     end
   end

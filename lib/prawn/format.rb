@@ -9,7 +9,9 @@ module Prawn
     end
 
     def text_with_formatting(text, options={})
-      if options[:plain] || text !~ /[<&]/
+      plain = options.key?(:plain) ? options[:plain] : text !~ /[<&]/
+
+      if plain
         text_without_formatting(text, options)
       else
         format(text, options)
@@ -102,6 +104,9 @@ module Prawn
 
       state.delete(:text)
 
+      #rectangle [x, y+state[:dy]], width, state[:dy]
+      #stroke
+
       return state
     end
 
@@ -131,7 +136,7 @@ module Prawn
       helper  = layout(text, options)
 
       columns = (options[:columns] || 1).to_i
-      gap     = options[:gap]     || 18
+      gap     = columns > 1 ? (options[:gap] || 18) : 0
       width   = bounds.width.to_f / columns
       column  = 0
       top     = self.y

@@ -4,12 +4,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require "prawn"
 require "prawn/format"
 
-Prawn::Document.generate("custom-styles.pdf") do
-  styles[:p][:text_align] = :justify
+Prawn::Document.generate("custom-tags.pdf") do
+  tags[:p][:text_align] = :justify
 
-  styles[:h1][:margin_top] = 144
+  tags[:h1][:margin_top] = 144
 
-  styles[:stave] = {
+  tags[:stave] = {
     :meta => { :name => :anchor },
     :text_align => :center,
     :display => :block,
@@ -17,7 +17,7 @@ Prawn::Document.generate("custom-styles.pdf") do
     :font_size => "2em"
   }
 
-  styles[:title] = {
+  tags[:title] = {
     :text_align => :center,
     :display => :block,
     :font_weight => :bold,
@@ -25,7 +25,7 @@ Prawn::Document.generate("custom-styles.pdf") do
     :margin_bottom => "1em"
   }
 
-  styles[:song] = {
+  tags[:song] = {
     :display => :block,
     :text_align => :center,
     :margin_top => "0.5em",
@@ -33,7 +33,7 @@ Prawn::Document.generate("custom-styles.pdf") do
     :font_style => :italic
   }
 
-  styles[:contents] = {
+  tags[:contents] = {
     :display => :block,
     :margin_left => "25%",
     :margin_top => 72

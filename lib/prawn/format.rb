@@ -18,7 +18,7 @@ module Prawn
       end
     end
 
-    DEFAULT_STYLES = {
+    DEFAULT_TAGS = {
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
       :b      => { :font_weight => :bold },
       :br     => { :display => :break },
@@ -35,9 +35,9 @@ module Prawn
       :u      => { :text_decoration => :underline },
     }.freeze
 
-    def styles(update={})
-      @styles ||= DEFAULT_STYLES.dup
-      @styles.update(update)
+    def tags(update={})
+      @tags ||= DEFAULT_TAGS.dup
+      @tags.update(update)
     end
 
     def default_style

@@ -10,12 +10,12 @@ module Prawn
       def initialize(document, text, options={})
         @document = document
         @options  = options
-        @styles   = document.styles.merge(options[:styles] || {})
+        @tags     = document.tags.merge(options[:tags] || {})
         style     = document.default_style.merge(options[:default_style] || {})
 
         translate_prawn_options(style, options)
 
-        @parser   = Parser.new(@document, text, :styles => @styles, :style => style)
+        @parser   = Parser.new(@document, text, :tags => @tags, :style => style)
         @state    = {}
         @box      = Box.new(nil, @parser.state)
       end

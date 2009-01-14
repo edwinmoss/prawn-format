@@ -25,14 +25,14 @@ module Prawn
       class TagError < RuntimeError; end
 
       attr_reader :document
-      attr_reader :styles
+      attr_reader :tags
       attr_reader :state
 
       # Creates a new parser associated with the given +document+, and which
       # will parse the given +text+. The +options+ may include either of two
       # optional keys:
       #
-      # * :styles is used to specify the hash of tags and their associated
+      # * :tags is used to specify the hash of tags and their associated
       #   styles. Any tag not specified here will not be recognized by the
       #   parser, and will cause an error if it is encountered in +text+.
       # * :style is the default style for any text not otherwise wrapped by
@@ -41,14 +41,14 @@ module Prawn
       # Example:
       #
       #   parser = Parser.new(@pdf, "...",
-      #       :styles => { :b => { :font_weight => :bold } },
+      #       :tags => { :b => { :font_weight => :bold } },
       #       :style => { :font_family => "Times-Roman" })
       #
       # See Format::State for a description of the supported style options.
       def initialize(document, text, options={})
         @document = document
         @lexer = Lexer.new(text)
-        @styles = options[:styles] || {}
+        @tags = options[:tags] || {}
 
         @state = State.new(document, :style => options[:style])
 
@@ -104,8 +104,8 @@ module Prawn
               instruction = text_parse
             when :open
               @tag_stack << @token
-              raise TagError, "undefined tag #{@token[:tag]}" unless @styles[@token[:tag]]
-              @token[:style] = @styles[@token[:tag]].dup
+              raise TagError, "undefined tag #{@token[:tag]}" unless @tags[@token[:tag]]
+              @token[:style] = @tags[@token[:tag]].dup
 
               if @token[:style][:meta]
                 @token[:style][:meta].each do |key, value|

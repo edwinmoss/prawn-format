@@ -40,6 +40,11 @@ module Prawn
       @tags.update(update)
     end
 
+    def styles(update={})
+      @styles ||= {}
+      @styles.update(update)
+    end
+
     def default_style
       { :font_family => font.family || font.name,
         :font_size   => font.size,

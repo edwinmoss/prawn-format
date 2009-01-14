@@ -39,6 +39,8 @@ Prawn::Document.generate("custom-tags.pdf") do
     :margin_top => 72
   }
 
+  styles[:noindent] = { :text_indent => 0 }
+
   font "Times-Roman", :size => 14
   text(File.read("#{File.dirname(__FILE__)}/christmas-carol.html"))
 end

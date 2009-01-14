@@ -35,13 +35,17 @@ module Prawn
       # * :tags is used to specify the hash of tags and their associated
       #   styles. Any tag not specified here will not be recognized by the
       #   parser, and will cause an error if it is encountered in +text+.
+      # * :styles is used to specify the mapping of style classes to their
+      #   definitions. The keys should be symbols, and the values should be
+      #   hashes. The values have the same format as for the :tags map.
       # * :style is the default style for any text not otherwise wrapped by
       #   tags.
       #
       # Example:
       #
-      #   parser = Parser.new(@pdf, "...",
+      #   parser = Parser.new(@pdf, "<b class='ruby'>hello</b>",
       #       :tags => { :b => { :font_weight => :bold } },
+      #       :styles => { :ruby => { :color => "red" } },
       #       :style => { :font_family => "Times-Roman" })
       #
       # See Format::State for a description of the supported style options.
@@ -49,6 +53,7 @@ module Prawn
         @document = document
         @lexer = Lexer.new(text)
         @tags = options[:tags] || {}
+        @styles = options[:styles] || {}
 
         @state = State.new(document, :style => options[:style])
 
@@ -103,18 +108,7 @@ module Prawn
               @position = 0
               instruction = text_parse
             when :open
-              @tag_stack << @token
-              raise TagError, "undefined tag #{@token[:tag]}" unless @tags[@token[:tag]]
-              @token[:style] = @tags[@token[:tag]].dup
-
-              if @token[:style][:meta]
-                @token[:style][:meta].each do |key, value|
-                  @token[:style][value] = @token[:options][key]
-                end
-              end
-
-              @state = @state.with_style(@token[:style])
-              instruction = Instructions::TagOpen.new(@state, @token)
+              instruction = process_open_tag
             when :close
               raise TagError, "closing #{@token[:tag]}, but no tags are open" if @tag_stack.empty?
               raise TagError, "closing #{@tag_stack.last[:tag]} with #{@token[:tag]}" if @tag_stack.last[:tag] != @token[:tag]
@@ -140,6 +134,25 @@ module Prawn
             @action = :start
             start_parse
           end
+        end
+
+        def process_open_tag
+          @tag_stack << @token
+          raise TagError, "undefined tag #{@token[:tag]}" unless @tags[@token[:tag]]
+          @token[:style] = @tags[@token[:tag]].dup
+
+          (@token[:options][:class] || "").split(/\s/).each do |name|
+            @token[:style].update(@styles[name.to_sym] || {})
+          end
+
+          if @token[:style][:meta]
+            @token[:style][:meta].each do |key, value|
+              @token[:style][value] = @token[:options][key]
+            end
+          end
+
+          @state = @state.with_style(@token[:style])
+          Instructions::TagOpen.new(@state, @token)
         end
     end
 

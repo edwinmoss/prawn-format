@@ -104,8 +104,10 @@ module Prawn
         state[:text].move_to(state[:dx], state[:dy])
         state[:line] = self
 
-        instructions.each { |instruction| instruction.draw(document, state, options) }
-        state[:pending_effects].each { |effect| effect.wrap(document, state) }
+        document.save_font do
+          instructions.each { |instruction| instruction.draw(document, state, options) }
+          state[:pending_effects].each { |effect| effect.wrap(document, state) }
+        end
 
         state[:dy] -= (options[:spacing] || 0) + (font_height - ascent)
         state[:dy] -= box.margin_bottom if end_of_box?

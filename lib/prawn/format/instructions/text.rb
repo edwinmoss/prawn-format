@@ -7,22 +7,24 @@ module Prawn
       class Text < Base
         attr_reader :text
 
-        def initialize(state, text)
+        def initialize(state, text, options={})
           super(state)
           @text = text
-          state.font.normalize_encoding(@text)
+          state.font.normalize_encoding(@text) if options.fetch(:normalize, true)
         end
 
         def dup
-          # can't pass @text to constructor because constructor tries to
-          # normalize the encoding, which has already been normalized for @text
-          object = self.class.new(state, "")
-          object.append(self)
-          object
+          self.class.new(state, @text.dup, :normalize => false)
         end
 
-        def append(instruction)
-          @text << instruction.text
+        def accumulate(list)
+          if list.last.is_a?(Text) && list.last.state == state
+            list.last.text << @text
+          else
+            list.push(dup)
+          end
+
+          return list
         end
 
         def spaces

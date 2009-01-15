@@ -18,12 +18,18 @@ module Prawn
       # handle, this exception will be raised.
       class InvalidFormat < RuntimeError; end
 
+      # Controls whether whitespace is lexed verbatim or not. If not,
+      # adjacent whitespace is compressed into a single space character
+      # (this includes newlines).
+      attr_accessor :verbatim
+
       # Create a new lexer that will scan the given text. The text must be
       # UTF-8 encoded, and must consist of well-formed XML in the subset
       # understand by the lexer.
       def initialize(text)
         @scanner = StringScanner.new(text)
         @state = :start
+        @verbatim = false
       end
 
       # Returns the next token from the scanner. If the end of the string
@@ -76,6 +82,15 @@ module Prawn
             [^-\xE2\x80\x94\s&<]+   # everything else
           /x
 
+        VERBATIM_TEXT_PATTERN = /
+            -+                    | # hyphens
+            \xE2\x80\x94+         | # em-dashes
+            (?:\r\n|\r|\n)        | # new-lines
+            \t                    | # tab characters
+            [ ]+                  | # whitespace
+            [^-\xE2\x80\x94\s&<]+   # everything else
+          /x
+
         def scan_start_state
           if @scanner.scan(/</)
             if @scanner.scan(%r(/))
@@ -88,8 +103,8 @@ module Prawn
           else
             pieces = []
             loop do
-              chunk = @scanner.scan(TEXT_PATTERN) or break
-              chunk = " " if chunk =~ /\s\s+/
+              chunk = @scanner.scan(@verbatim ? VERBATIM_TEXT_PATTERN : TEXT_PATTERN) or break
+              chunk = " " if !@verbatim && chunk =~ /\s/
               pieces << chunk
             end
             { :type => :text, :text => pieces }

@@ -39,6 +39,10 @@ module Prawn
         @container ? @container.full_width : @width
       end
 
+      def verbatim?
+        @state.white_space == :pre
+      end
+
       private
 
         def evaluate(attribute, relative)

@@ -42,6 +42,14 @@ module Prawn
           false
         end
 
+        def start_verbatim?
+          false
+        end
+
+        def end_verbatim?
+          false
+        end
+
         def start_box?
           false
         end
@@ -54,18 +62,8 @@ module Prawn
           {}
         end
 
-        def compatible?(with)
-          false
-        end
-
         def accumulate(list)
-          if list.any? && list.last.compatible?(self)
-            list.last.append(self)
-          else
-            list.push(dup)
-          end
-
-          list
+          list.push(self)
         end
       end
 

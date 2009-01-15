@@ -31,6 +31,7 @@ module Prawn
       :i      => { :font_style => :italic },
       :p      => { :display => :block, :text_indent => "3em" },
       :page   => { :display => :page_break },
+      :pre    => { :display => :block, :white_space => :pre, :font_family => "Courier" },
       :span   => {},
       :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :sup    => { :vertical_align => :super, :font_size => "70%" },

@@ -25,6 +25,10 @@ module Prawn
           draw_underline(document, draw_state)
         end
 
+        def start_verbatim?
+          @tag[:style][:white_space] == :pre
+        end
+
         def start_box?
           @tag[:style][:display] == :block
         end

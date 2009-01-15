@@ -119,7 +119,15 @@ module Prawn
               raise ArgumentError, "[BUG] unknown token type #{@token[:type].inspect} (#{@token.inspect})"
             end
 
-            return instruction if instruction
+            if instruction
+              if instruction.start_verbatim?
+                @lexer.verbatim = true
+              elsif instruction.end_verbatim?
+                @lexer.verbatim = false
+              end
+
+              return instruction
+            end
           end
 
           return nil
@@ -129,7 +137,13 @@ module Prawn
           if @token[:text][@position]
             @action = :text
             @position += 1
-            Instructions::Text.new(@state, @token[:text][@position - 1])
+
+            text = @token[:text][@position - 1]
+            if @state.white_space == :pre && text =~ /(?:\r\n|\r|\n)/
+              Instructions::TagClose.new(@state, { :style => { :display => :break }, :options => {} })
+            else
+              Instructions::Text.new(@state, text)
+            end
           else
             @action = :start
             start_parse

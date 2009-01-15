@@ -75,6 +75,10 @@ module Prawn
         @style[:text_decoration] || :none
       end
 
+      def white_space
+        @style[:white_space] || :normal
+      end
+
       def font
         @font ||= document.find_font(font_family, :style => pdf_font_style)
       end

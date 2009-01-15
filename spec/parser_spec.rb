@@ -28,7 +28,13 @@ describe "when parsing formatted text" do
   end
 
   it "should honor custom tag styles" do
-    parser = parser_for("a<k>c</k>d", :styles => { :k => { :text_decoration => :underline } })
+    parser = parser_for("a<k>c</k>d", :tags => { :k => { :text_decoration => :underline } })
+    decorations = [:none, :underline, :underline, :underline, :none]
+    assert_equal decorations, parse(parser).map { |i| i.state.text_decoration }
+  end
+
+  it "should honor custom style classes" do
+    parser = parser_for("a<j class='test'>c</j>d", :tags => { :j => {} }, :styles => { :test => { :text_decoration => :underline } })
     decorations = [:none, :underline, :underline, :underline, :none]
     assert_equal decorations, parse(parser).map { |i| i.state.text_decoration }
   end
@@ -71,17 +77,18 @@ describe "when parsing formatted text" do
     assert parser.eos?
   end
 
-  it "should map meta styles to options on the tag" do
-    parser = parser_for("<k name='bob'>a</k>", :styles => { :k => { :meta => { :name => :__name__ } } })
+  it "should map meta styles to styles on the tag" do
+    parser = parser_for("<k name='bob'>a</k>", :tags => { :k => { :meta => { :name => :__name__ } } })
     i = parser.next
-    assert_equal({:name => "bob", :__name__ =>"bob"}, i.tag[:options])
+    assert_equal "bob", i.tag[:style][:__name__]
   end
 
   private
 
     def parser_for(text, opts={})
+      tags = @pdf.tags.merge(opts[:tags] || {})
       styles = @pdf.styles.merge(opts[:styles] || {})
-      @parser = Prawn::Format::Parser.new(@pdf, text, opts.merge(:styles => styles))
+      @parser = Prawn::Format::Parser.new(@pdf, text, opts.merge(:styles => styles, :tags => tags))
     end
 
     def parse(parser)

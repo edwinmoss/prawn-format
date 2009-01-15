@@ -88,6 +88,7 @@ module Prawn
             result = @scanner.scan_until(/[-\s<&]|\xE2\x80\x94/)
             if result
               @scanner.pos -= @scanner.matched.length
+              return nil if result == "<" || result == "&"
               return result[0,result.length - @scanner.matched.length]
             else
               result = @scanner.rest

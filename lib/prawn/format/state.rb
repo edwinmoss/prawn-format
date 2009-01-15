@@ -176,9 +176,9 @@ module Prawn
         def evaluate_color(color)
           case color
           when nil then nil
-          when /^\s*#?([a-f0-9]{3})\s*$/ then
+          when /^\s*#?([a-f0-9]{3})\s*$/i then
             return $1.gsub(/./, '\&0')
-          when /^\s*#?([a-f0-9]+)$\s*/ then
+          when /^\s*#?([a-f0-9]+)$\s*/i then
             return $1
           when /^\s*rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)\s*$/
             return "%02x%02x%02x" % [$1.to_i, $2.to_i, $3.to_i]

@@ -118,6 +118,7 @@ module Prawn
           "mdash" => "\xE2\x80\x94",
           "ndash" => "\xE2\x80\x93",
           "nbsp"  => "\xC2\xA0",
+          "quot"  => '"',
         }
 
         def scan_entity

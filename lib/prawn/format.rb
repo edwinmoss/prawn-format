@@ -11,7 +11,7 @@ module Prawn
     end
 
     def text_with_formatting(text, options={})
-      plain = options.key?(:plain) ? options[:plain] : text !~ /[<&]/
+      plain = options.key?(:plain) ? options[:plain] : text !~ /<|&(?:#x?)?\w+;/
 
       if plain
         text_without_formatting(text, options)

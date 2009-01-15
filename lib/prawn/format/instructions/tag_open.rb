@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'prawn/format/instructions/base'
 require 'prawn/format/effects/link'
 require 'prawn/format/effects/underline'

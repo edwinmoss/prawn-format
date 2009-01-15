@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'prawn/format/instructions/base'
 
 module Prawn

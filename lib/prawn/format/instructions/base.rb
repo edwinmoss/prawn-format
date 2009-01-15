@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Prawn
   module Format
     module Instructions

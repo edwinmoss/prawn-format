@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'prawn/format/instructions/base'
 
 module Prawn
@@ -10,11 +12,14 @@ module Prawn
         def initialize(state, text, options={})
           super(state)
           @text = text
+          @break = options.key?(:break) ? options[:break] : text.index(/[-\xE2\x80\x94\s]/)
+          @discardable = options.key?(:discardable) ? options[:discardable] : text.index(/\s/)
           state.font.normalize_encoding(@text) if options.fetch(:normalize, true)
         end
 
         def dup
-          self.class.new(state, @text.dup, :normalize => false)
+          self.class.new(state, @text.dup, :normalize => false,
+            :break => @break, :discardable => @discardable)
         end
 
         def accumulate(list)
@@ -40,13 +45,11 @@ module Prawn
         end
 
         def break?
-          return @break if defined?(@break)
-          @break = @text =~ /[-—\s]/
+          @break
         end
 
         def discardable?
-          return @discardable if defined?(@discardable)
-          @discardable = (@text =~ /\s/)
+          @discardable
         end
 
         def compatible?(with)

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'prawn/format/instructions/text'
 require 'prawn/format/instructions/tag_open'
 require 'prawn/format/instructions/tag_close'

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'prawn/format/box'
 require 'prawn/format/line'
 require 'prawn/format/parser'

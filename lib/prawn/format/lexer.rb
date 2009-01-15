@@ -77,21 +77,51 @@ module Prawn
           end
         end
 
-        TEXT_PATTERN = /
-            -+                    | # hyphens
-            \xE2\x80\x94+         | # em-dashes
-            \s+                   | # whitespace
-            [^-\xE2\x80\x94\s&<]+   # everything else
-          /x
+        if RUBY_VERSION >= "1.9.0"
+          def scan_other_text
+            @scanner.scan(/[^-\xE2\x80\x94\s<&]+/)
+          end
+        else
+          def scan_other_text
+            return nil if @scanner.eos?
 
-        VERBATIM_TEXT_PATTERN = /
-            -+                    | # hyphens
-            \xE2\x80\x94+         | # em-dashes
-            (?:\r\n|\r|\n)        | # new-lines
-            \t                    | # tab characters
-            [ ]+                  | # whitespace
-            [^-\xE2\x80\x94\s&<]+   # everything else
-          /x
+            result = @scanner.scan_until(/[-\s<&]|\xE2\x80\x94/)
+            if result
+              @scanner.pos -= @scanner.matched.length
+              return result[0,result.length - @scanner.matched.length]
+            else
+              result = @scanner.rest
+              @scanner.terminate
+              return result
+            end
+          end
+        end
+
+        def scan_text_chunk
+          @scanner.scan(/-/)            || # hyphen
+          @scanner.scan(/\xe2\x80\x94/) || # mdash
+          scan_other_text
+        end
+
+        def scan_verbatim_text_chunk
+          @scanner.scan(/\r\n|\r|\n/) || # newline
+          @scanner.scan(/\t/)         || # tab
+          @scanner.scan(/ +/)         || # spaces
+          scan_text_chunk
+        end
+
+        def scan_nonverbatim_text_chunk
+          (@scanner.scan(/\s+/) && " ") || # whitespace
+          scan_text_chunk
+        end
+
+        def scan_next_text_chunk
+          if @verbatim
+            scan_verbatim_text_chunk
+          else
+            scan_nonverbatim_text_chunk
+          end
+        end
 
         def scan_start_state
           if @scanner.scan(/</)
@@ -105,8 +135,7 @@ module Prawn
           else
             pieces = []
             loop do
-              chunk = @scanner.scan(@verbatim ? VERBATIM_TEXT_PATTERN : TEXT_PATTERN) or break
-              chunk = " " if !@verbatim && chunk =~ /\s/
+              chunk = scan_next_text_chunk or break
               pieces << chunk
             end
             { :type => :text, :text => pieces }

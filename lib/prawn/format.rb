@@ -52,7 +52,7 @@ module Prawn
 
     def default_style
       { :font_family => font.family || font.name,
-        :font_size   => font.size,
+        :font_size   => font_size,
         :color       => fill_color }
     end
 
@@ -73,7 +73,7 @@ module Prawn
             relative * value.to_f / 100
           when "em" then
             # not a true em, but good enough for approximating. patches welcome.
-            value.to_f * (options[:em] || font.size)
+            value.to_f * (options[:em] || font_size)
           when "", "pt" then return value.to_f
           when "pc" then return value.to_f * 12
           when "in" then return value.to_f * 72

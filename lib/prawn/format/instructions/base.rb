@@ -9,7 +9,7 @@ module Prawn
 
         def initialize(state)
           @state = state
-          state.font.size(state.font_size) do
+          state.document.font_size(state.font_size) do
             @height = state.font.height
             @ascent = state.font.ascender
             @descent = state.font.descender

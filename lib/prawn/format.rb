@@ -24,12 +24,16 @@ module Prawn
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
       :b      => { :font_weight => :bold },
       :br     => { :display => :break },
+      :code   => { :font_family => "Courier" },
+      :em     => { :font_style => :italic },
       :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
       :i      => { :font_style => :italic },
       :pre    => { :white_space => :pre, :font_family => "Courier" },
       :span   => {},
+      :strong => { :font_weight => :bold },
       :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :sup    => { :vertical_align => :super, :font_size => "70%" },
+      :tt     => { :font_family => "Courier" },
       :u      => { :text_decoration => :underline },
     }.freeze
 

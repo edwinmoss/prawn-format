@@ -24,6 +24,7 @@ module Prawn
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
       :b      => { :font_weight => :bold },
       :br     => { :display => :break },
+      :strong => { :display => :break },
       :center => { :display => :block, :text_align => :center },
       :div    => { :display => :block },
       :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
@@ -154,8 +155,8 @@ module Prawn
       until helper.done?
         x = column * width
         y = self.y - bounds.absolute_bottom
-
-        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height)) + bounds.absolute_bottom
+        height = bounds.height > 0 ? bounds.height : bounds.absolute_top
+        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => height)) + bounds.absolute_bottom
 
         unless helper.done?
           column += 1

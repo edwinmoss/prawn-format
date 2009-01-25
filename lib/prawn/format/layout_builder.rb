@@ -27,11 +27,11 @@ module Prawn
         @parser.eos?
       end
 
-      def word_wrap(width, height=nil, &block)
-        if height && block
+      def word_wrap(width, options={}, &block)
+        if options[:height] && block
           raise ArgumentError, "cannot specify both height and a block"
-        elsif height
-          block = Proc.new { |l, h| h > height }
+        elsif options[:height]
+          block = Proc.new { |l, h| h > options[:height] }
         elsif block.nil?
           block = Proc.new { |l, h| false }
         end
@@ -53,14 +53,14 @@ module Prawn
       end
 
       def fill(x, y, width, fill_options={}, &block)
-        lines = word_wrap(width, fill_options[:height], &block)
+        lines = word_wrap(width, fill_options, &block)
         draw_options = options.merge(fill_options).merge(:state => @state)
         @state = document.draw_lines(x, y, width, lines, draw_options)
         @state.delete(:cookies)
         return @state[:dy] + y
       end
 
-      def next(line_width)
+      def next(line_width=nil)
         line = []
         width = 0
         break_at = nil
@@ -71,13 +71,13 @@ module Prawn
 
           if instruction.break?
             width += instruction.width(:nondiscardable)
-            break_at = line.length if width <= line_width
+            break_at = line.length if line_width && width <= line_width
             width += instruction.width(:discardable)
           else
             width += instruction.width
           end
 
-          if instruction.force_break? || width >= line_width
+          if instruction.force_break? || line_width && width >= line_width
             break_at ||= line.length
             hard_break = instruction.force_break? || @parser.eos?
 
@@ -95,7 +95,6 @@ module Prawn
       end
 
       def translate_prawn_options(style, options)
-        style[:text_align] = options[:align] if options.key?(:align)
         style[:kerning] = options[:kerning] if options.key?(:kerning)
         style[:font_size] = options[:size] if options.key?(:size)
 

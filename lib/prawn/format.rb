@@ -134,35 +134,25 @@ module Prawn
 
     def format_positioned_text(text, x, y, options={})
       helper = layout(text, options)
-      helper.width = 1_000_000 # large number to prevent wrapping
       line = helper.next
       draw_lines(x, y+line.ascent, line.width, [line], options)
     end
 
     def format_wrapped_text(text, options={})
-      helper  = layout(text, options)
+      helper = layout(text, options)
 
-      columns = (options[:columns] || 1).to_i
-      gap     = columns > 1 ? (options[:gap] || 18) : 0
-      width   = bounds.width.to_f / columns
-      column  = 0
-      top     = self.y
+      start_new_page if self.y < bounds.absolute_bottom
 
       until helper.done?
-        x = column * width
         y = self.y - bounds.absolute_bottom
+        height = bounds.stretchy? ? bounds.absolute_top : y
 
-        height = bounds.stretchy? ? nil : bounds.height
-        self.y = helper.fill(x, y, width - gap, options.merge(:height => height)) + bounds.absolute_bottom
+        y = helper.fill(bounds.left, y, bounds.width, options.merge(:height => height))
 
-        unless helper.done?
-          column += 1
-          self.y = top
-          if column >= columns
-            start_new_page
-            column = 0
-            top = self.y
-          end
+        if helper.done?
+          self.y = y + bounds.absolute_bottom
+        else
+          start_new_page
         end
       end
     end

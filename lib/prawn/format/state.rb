@@ -23,6 +23,7 @@ module Prawn
           subset = original_style.dup
           subset.delete(:meta)
           subset.delete(:display)
+          subset.delete(:width)
           subset
         end
       end
@@ -65,6 +66,10 @@ module Prawn
 
       def white_space
         @style[:white_space] || :normal
+      end
+
+      def width
+        @style[:width] || 0
       end
 
       def font
@@ -129,6 +134,7 @@ module Prawn
 
           evaluate_style(:font_size, 12, :current)
           evaluate_style(:vertical_align, 0, font_size, :super => "+40%", :sub => "-30%")
+          evaluate_style(:width, 0, document.bounds.width)
 
           @style[:color] = evaluate_color(@style[:color])
         end

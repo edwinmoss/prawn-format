@@ -17,6 +17,7 @@ module Prawn
         end
 
         def draw(document, draw_state, options={})
+          draw_width(document, draw_state)
           draw_destination(document, draw_state)
           draw_link(document, draw_state)
           draw_underline(document, draw_state)
@@ -30,7 +31,18 @@ module Prawn
           @tag[:style]
         end
 
+        def width
+          @state.width
+        end
+
         private
+
+          def draw_width(document, draw_state)
+            if width > 0
+              draw_state[:dx] += width
+              draw_state[:text].move_to(draw_state[:dx], draw_state[:dy])
+            end
+          end
 
           def draw_destination(document, draw_state)
             return unless tag[:style][:anchor]

@@ -79,7 +79,7 @@ module Prawn
 
           def draw_underline(document, draw_state)
             return unless tag[:style][:text_decoration] == :underline
-            add_effect(Effects::Underline.new(draw_state[:dx]), draw_state)
+            add_effect(Effects::Underline.new(draw_state[:dx], @state), draw_state)
           end
 
           def add_effect(effect, draw_state)

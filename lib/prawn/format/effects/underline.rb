@@ -5,8 +5,9 @@ module Prawn
     module Effects
 
       class Underline
-        def initialize(from)
+        def initialize(from, state)
           @from = from
+          @state = state
         end
 
         def finish(document, draw_state)
@@ -14,6 +15,7 @@ module Prawn
           x2 = draw_state[:x] + draw_state[:dx]
           y  = draw_state[:y] + draw_state[:dy] - 2
 
+          document.stroke_color(@state.color)
           document.move_to(x1, y)
           document.line_to(x2, y)
           document.stroke

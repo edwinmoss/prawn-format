@@ -23,12 +23,6 @@ module Prawn
           subset = original_style.dup
           subset.delete(:meta)
           subset.delete(:display)
-          subset.delete(:text_indent)
-          subset.delete(:margin_left)
-          subset.delete(:margin_right)
-          subset.delete(:margin_top)
-          subset.delete(:margin_bottom)
-          subset.delete(:width)
           subset
         end
       end
@@ -39,10 +33,6 @@ module Prawn
 
       def display
         @style[:display] || :inline
-      end
-
-      def text_align
-        @style[:text_align] || :left
       end
 
       def font_size
@@ -67,10 +57,6 @@ module Prawn
 
       def vertical_align
         @style[:vertical_align] || 0
-      end
-
-      def text_indent
-        @style[:text_indent] || 0
       end
 
       def text_decoration
@@ -142,7 +128,6 @@ module Prawn
           @style = @original_style.dup
 
           evaluate_style(:font_size, 12, :current)
-          evaluate_style(:text_indent, nil, :current)
           evaluate_style(:vertical_align, 0, font_size, :super => "+40%", :sub => "-30%")
 
           @style[:color] = evaluate_color(@style[:color])

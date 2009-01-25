@@ -24,16 +24,9 @@ module Prawn
       :a      => { :meta => { :name => :anchor, :href => :target }, :color => "0000ff", :text_decoration => :underline },
       :b      => { :font_weight => :bold },
       :br     => { :display => :break },
-      :center => { :display => :block, :text_align => :center },
-      :div    => { :display => :block },
       :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
-      :h1     => { :display => :block, :text_align => :center, :font_size => "3em", :font_weight => :bold, :margin_bottom => "1em" },
-      :h2     => { :display => :block, :text_align => :center, :font_size => "2em", :font_weight => :bold, :margin_bottom => "1em" },
-      :h3     => { :display => :block, :text_align => :center, :font_size => "1.2em", :font_weight => :bold, :margin_bottom => "1em" },
       :i      => { :font_style => :italic },
-      :p      => { :display => :block, :text_indent => "3em" },
-      :page   => { :display => :page_break },
-      :pre    => { :display => :block, :white_space => :pre, :font_family => "Courier" },
+      :pre    => { :white_space => :pre, :font_family => "Courier" },
       :span   => {},
       :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :sup    => { :vertical_align => :super, :font_size => "70%" },
@@ -94,8 +87,6 @@ module Prawn
       real_x, real_y = translate(x, y)
 
       state = options[:state] || {}
-      return options[:state] if lines.empty?
-
       options[:align] ||= :left
 
       state = state.merge(:width => width,
@@ -105,6 +96,8 @@ module Prawn
 
       state[:cookies] ||= {}
       state[:pending_effects] ||= []
+
+      return state if lines.empty?
 
       text_object do |text|
         text.rotate(real_x, real_y, options[:rotate] || 0)
@@ -155,7 +148,8 @@ module Prawn
         x = column * width
         y = self.y - bounds.absolute_bottom
 
-        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => bounds.height)) + bounds.absolute_bottom
+        height = bounds.stretchy? ? nil : bounds.height
+        self.y = helper.fill(x, y, width - gap, options.merge(:height => height)) + bounds.absolute_bottom
 
         unless helper.done?
           column += 1

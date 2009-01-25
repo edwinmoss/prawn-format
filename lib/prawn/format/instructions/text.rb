@@ -80,9 +80,7 @@ module Prawn
           end
           draw_state[:dx] += width
 
-          if state.text_align == :justify && draw_state[:padding]
-            draw_state[:dx] += draw_state[:padding] * spaces
-          end
+          draw_state[:dx] += draw_state[:padding] * spaces if draw_state[:padding]
         end
       end
 

@@ -6,7 +6,7 @@ module Prawn
 
       class Link
         def initialize(target, x)
-          @target = target
+          @target = target.sub(/^#/, "")
           @x = x
         end
 

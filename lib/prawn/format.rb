@@ -159,7 +159,19 @@ module Prawn
     private
 
       def unformatted?(text, options={})
-        options.key?(:plain) ? options[:plain] : text !~ /<|&(?:#x?)?\w+;/
+        # If they have a preference, use it
+        if options.key?(:plain)
+          return options[:plain]
+
+        # Otherwise, if they're asking for full-justification, we must assume
+        # the text is formatted (since Prawn's text() method has no full justification)
+        elsif options[:align] == :justify
+          return true
+
+        # Otherwise, look for tags or XML entities in the text
+        else
+          return text !~ /<|&(?:#x?)?\w+;/
+        end
       end
 
       def format_positioned_text(text, x, y, options={})

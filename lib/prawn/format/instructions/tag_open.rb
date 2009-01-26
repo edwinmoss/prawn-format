@@ -66,7 +66,7 @@ module Prawn
               when /^fitbv:(.*)$/
                 [$1, document.dest_fit_bounds_vertically(x)]
               else
-                [tag[:style][:anchor], document.dest_xyz(document.bounds.absolute_left, document.bounds.absolute_top, nil)]
+                [tag[:style][:anchor], document.dest_fit_bounds]
               end
 
             document.add_dest(label, destination)

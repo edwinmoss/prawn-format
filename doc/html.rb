@@ -97,22 +97,15 @@ body {
   margin-top: 1em;
 }
 
-.highlight {
+pre.highlight {
   background-color: #f8f8f8;
   border: 1px solid silver;
   font-family: Courier, monospace;
   font-size: 90%;
   color: #100;
   line-height: 1.1em;
+  padding: 1em;
 }
-pre.highlight { margin: 0px; padding: 1em; }
-
-.highlight .code { width: 100% }
-
-ol.highlight { font-size: 10pt }
-ol.highlight li { white-space: pre }
-
-.highlight .code pre { width: 37em; overflow: auto }
 
 .highlight .af { color:#00C }
 .highlight .an { color:#007 }

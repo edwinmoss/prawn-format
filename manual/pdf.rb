@@ -30,7 +30,8 @@ end
 def process_substitutions(content)
   content.
     gsub(/%FORMAT:VERSION%/, Prawn::Format::Version::STRING).
-    gsub(/%NOW%/, Time.now.utc.strftime("%e %B %Y at %H:%M UTC"))
+    gsub(/%NOW%/, Time.now.utc.strftime("%e %B %Y at %H:%M UTC")).
+    gsub(/%PDF\{(.*?)\}HTML\{(.*?)\}END%/, '\\1')
 end
 
 def center(document, content)
@@ -61,6 +62,7 @@ def h2(document, content)
 end
 
 def paragraph(document, content, indent=true)
+  return unless content.strip.length > 0
   indent_tag = indent ? "<indent/>" : ""
   document.text "#{indent_tag}#{content}", :align => :justify, :plain => false
 end

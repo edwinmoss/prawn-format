@@ -28,7 +28,8 @@ end
 def process_substitutions(content)
   content.
     gsub(/%FORMAT:VERSION%/, Prawn::Format::Version::STRING).
-    gsub(/%NOW%/, Time.now.utc.strftime("%e %B %Y at %H:%M UTC"))
+    gsub(/%NOW%/, Time.now.utc.strftime("%e %B %Y at %H:%M UTC")).
+    gsub(/%PDF\{(.*?)\}HTML\{(.*?)\}END%/, '\\2')
 end
 
 def center(document, content)
@@ -48,6 +49,7 @@ def h2(document, content)
 end
 
 def paragraph(document, content, indent=true)
+  return unless content.strip.length > 0
   document << "<p class='#{indent ? 'indent' : ''}'>#{content}</p>\n"
 end
 
@@ -56,7 +58,7 @@ def start_list(document)
 end
 
 def list_item(document, content)
-  document << "<li>#{content}</li>"
+  document << "<li>#{content}</li>\n"
 end
 
 def end_list(document)

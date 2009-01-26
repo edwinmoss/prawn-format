@@ -166,7 +166,7 @@ module Prawn
         # Otherwise, if they're asking for full-justification, we must assume
         # the text is formatted (since Prawn's text() method has no full justification)
         elsif options[:align] == :justify
-          return true
+          return false
 
         # Otherwise, look for tags or XML entities in the text
         else

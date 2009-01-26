@@ -24,6 +24,11 @@ module Prawn
           subset.delete(:meta)
           subset.delete(:display)
           subset.delete(:width)
+
+          # explicitly set font-size so that relative font-sizes don't get
+          # recomputed upon each nesting.
+          subset[:font_size] = font_size
+
           subset
         end
       end

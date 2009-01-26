@@ -8,15 +8,24 @@ module Prawn
     def self.included(mod)
       mod.send :alias_method, :text_without_formatting, :text
       mod.send :alias_method, :text, :text_with_formatting
+
+      mod.send :alias_method, :height_of_without_formatting, :height_of
+      mod.send :alias_method, :height_of, :height_of_with_formatting
     end
 
     def text_with_formatting(text, options={})
-      plain = options.key?(:plain) ? options[:plain] : text !~ /<|&(?:#x?)?\w+;/
-
-      if plain
+      if unformatted?(text, options)
         text_without_formatting(text, options)
       else
         format(text, options)
+      end
+    end
+
+    def height_of_with_formatting(string, line_width, size=font_size, options={})
+      if unformatted?(string, options)
+        height_of_without_formatting(string, line_width, size)
+      else
+        formatted_height(string, line_width, size, options)
       end
     end
 
@@ -157,6 +166,12 @@ module Prawn
       end
     end
 
+    def formatted_height(string, line_width, size=font_size, options={})
+      helper = layout(string, options.merge(:size => font_size))
+      lines = helper.word_wrap(line_width)
+      return lines.inject(0) { |s, line| s + line.height }
+    end
+
     def text_object
       object = TextObject.new
 
@@ -168,6 +183,11 @@ module Prawn
       return object
     end
 
+    private
+
+      def unformatted?(text, options={})
+        options.key?(:plain) ? options[:plain] : text !~ /<|&(?:#x?)?\w+;/
+      end
   end
 end
 

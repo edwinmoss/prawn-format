@@ -79,9 +79,9 @@ module Prawn
 
           if instruction.force_break? || line_width && width >= line_width
             break_at ||= line.length
-            hard_break = instruction.force_break? || @parser.eos?
 
             @parser.push(line.pop) while line.length > break_at
+            hard_break = instruction.force_break? || @parser.eos?
 
             return Line.new(line, hard_break)
           end

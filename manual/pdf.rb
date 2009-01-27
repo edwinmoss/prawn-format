@@ -35,43 +35,48 @@ def process_substitutions(content)
 end
 
 def center(document, content)
-  document.y -= document.font_size
+  padding(document, :clear => true)
   document.text(content, :plain => false, :align => :center)
-  document.y -= document.font_size
+  padding(document)
 end
 
 def horiz_rule(document)
-  document.y -= document.font_size
+  padding(document, :clear => true)
   document.stroke_color "000000"
   document.stroke_horizontal_rule
-  document.y -= document.font_size
+  padding(document)
 end
 
 def h1(document, content)
+  clear_padding!
   document.text "<h1>#{content}</h1>"
   document.stroke_color "000080"
   document.stroke_horizontal_rule
-  document.y -= document.font_size * 2
+  padding(document, :size => document.font_size * 2)
 end
 
 def h2(document, content)
+  clear_padding!
   document.text "<h2>#{content}</h2>"
   document.stroke_color "000080"
   document.stroke_horizontal_rule
-  document.y -= document.font_size
+  padding(document, :size => document.font_size * 2)
 end
 
 def paragraph(document, content, indent=true)
   return unless content.strip.length > 0
-  indent_tag = indent ? "<indent/>" : ""
-  document.text "#{indent_tag}#{content}", :align => :justify, :plain => false
+  clear_padding!
+  document.text "#{content}", :align => :justify
+  padding(document, :size => document.font_size / 2)
 end
 
 def start_list(document)
-  document.y -= document.font_size
+  padding(document)
 end
 
 def list_item(document, content)
+  clear_padding!
+
   indent_b = document.font_size * 3
   indent   = document.font_size * 4
 
@@ -90,15 +95,16 @@ def list_item(document, content)
     end
   end
 
-  document.y -= document.font_size / 4
+  padding(document, :size => document.font_size / 4)
 end
 
 def end_list(document)
-  document.y -= document.font_size * 3 / 4
+  padding(document)
 end
 
 def new_page(document)
   document.start_new_page
+  clear_padding!
 end
 
 def highlight(document, content)
@@ -106,7 +112,7 @@ def highlight(document, content)
   analyzed = CodeRay.scan(File.read(File.join(File.dirname(__FILE__), file)), syntax.to_sym)
   html = "<pre>" + analyzed.html + "</pre>"
 
-  document.y -= document.font_size * 2
+  padding(document, :size => document.font_size * 2, :clear => true)
   y = document.y - document.bounds.absolute_bottom
   start_y = y + document.font_size
 
@@ -128,7 +134,28 @@ def highlight(document, content)
   document.rectangle [document.font_size, start_y], bounds.width - document.font_size*2, (start_y - y)
   document.stroke
 
-  document.y -= document.font_size
+  padding(document, :size => document.font_size)
+end
+
+def clear_padding!
+  @last_padding = nil
+end
+
+# This padding stuff is mostly here just so that adjacent vertical spaces
+# will collapse.
+def padding(document, options={})
+  size = options[:size] || document.font_size
+
+  if @last_padding
+    full_size = [@last_padding, size].max
+    size = full_size - @last_padding
+    @last_padding = full_size
+  else
+    @last_padding = size
+  end
+
+  document.y -= size
+  clear_padding! if options[:clear]
 end
 
 SERIF_FONT  = "/Library/Fonts/Baskerville.dfont"
@@ -149,7 +176,6 @@ Prawn::Document.generate("prawn-format.pdf", :compress => true) do
 
   tags :h1 => { :font_size => "2em", :font_weight => :bold, :color => "navy" },
        :h2 => { :font_size => "1.5em", :font_weight => :bold, :color => "navy" },
-       :indent => { :width => "2em" },
        :about => { :font_size => "80%", :color => "808080", :font_style => :italic }
 
   styles :no  => { :color => "gray" },

@@ -9,7 +9,7 @@ Prawn::Document.generate("document.pdf") do
        :h2 => { :font_size => "1.5em", :font_weight => :bold },
        :stave => { :display => :break, :meta => { :name => :anchor }, :font_weight => :bold, :font_size => "2em" },
        :title => { :font_weight => :bold, :font_size => "1.5em" },
-       :indent => { :width => "3em" }
+       :indent => { :width => "2em" }
 
   font "Times-Roman", :size => 14
   File.open("#{File.dirname(__FILE__)}/christmas-carol.txt") do |story|
@@ -49,7 +49,7 @@ Prawn::Document.generate("document.pdf") do
         move_text_position font_size/2
 
       when "block"
-        text(data, :align => :justify, :plain => false)
+        text(data, :align => :justify)
 
       when "stop"
         break

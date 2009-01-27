@@ -4,8 +4,6 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'prawn'
 require 'prawn/format'
 
-CHINESE_FONT = "#{Prawn::BASEDIR}/data/fonts/gkai00mp.ttf"
-
 Prawn::Document.generate "style-classes.pdf" do
   styles :quote => { :font_style => :italic },
          :product => { :font_weight => :bold, :color => "#007" }

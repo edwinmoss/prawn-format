@@ -9,6 +9,9 @@ module Prawn
       mod.send :alias_method, :text_without_formatting, :text
       mod.send :alias_method, :text, :text_with_formatting
 
+      mod.send :alias_method, :width_of_without_formatting, :width_of
+      mod.send :alias_method, :width_of, :width_of_with_formatting
+
       mod.send :alias_method, :height_of_without_formatting, :height_of
       mod.send :alias_method, :height_of, :height_of_with_formatting
     end
@@ -30,6 +33,16 @@ module Prawn
         height_of_without_formatting(string, line_width, size)
       else
         formatted_height(string, line_width, size, options)
+      end
+    end
+
+    # Overloaded version of #width_of. Call via #width_of, rather than
+    # #width_of_with_formatting (see above, where it aliased to #width_of).
+    def width_of_with_formatting(string, options={}) #:nodoc:
+      if unformatted?(string, options)
+        width_of_without_formatting(string, options)
+      else
+        formatted_width(string, options)
       end
     end
 
@@ -200,9 +213,14 @@ module Prawn
       end
 
       def formatted_height(string, line_width, size=font_size, options={})
-        helper = layout(string, options.merge(:size => font_size))
+        helper = layout(string, options.merge(:size => size))
         lines = helper.word_wrap(line_width)
         return lines.inject(0) { |s, line| s + line.height }
+      end
+
+      def formatted_width(string, options={})
+        helper = layout(string, options)
+        helper.next.width
       end
   end
 end

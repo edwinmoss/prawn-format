@@ -20,7 +20,7 @@ Echoe.new('prawn-format', version) do |p|
   p.url              = "http://rubyforge.org/projects/prawn"
   p.project          = "prawn"
 
-  p.runtime_dependencies += ["prawn >=0.4", "prawn <0.5"]
+  p.runtime_dependencies << "prawn-core"
 
   p.need_zip         = true
   p.include_rakefile = true

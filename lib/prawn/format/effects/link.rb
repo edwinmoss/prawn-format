@@ -6,7 +6,7 @@ module Prawn
 
       class Link
         def initialize(target, x)
-          @target = target.sub(/^#/, "")
+          @target = target
           @x = x
         end
 
@@ -16,7 +16,11 @@ module Prawn
           y  = draw_state[:real_y] + draw_state[:dy]
 
           rect = [x1, y + draw_state[:line].descent, x2, y + draw_state[:line].ascent]
-          document.link_annotation(rect, :Dest => @target, :Border => [0,0,0])
+          if @target.match(/^#/)
+	    document.link_annotation(rect, :Dest => @target.sub(/^#/,""), :Border => [0,0,0])
+	  else
+	    document.link_annotation(rect, :Border => [0,0,0], :A => { :Type => :Action, :S => :URI, :URI => Prawn::LiteralString.new(@target) } )
+	  end #new
         end
 
         def wrap(document, draw_state)

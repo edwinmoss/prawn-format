@@ -39,21 +39,11 @@ module Prawn
         end
 
         def force_break?
-          @tag[:style][:display] == :block ||
-          @tag[:style][:display] == :break ||
-          @tag[:style][:display] == :page_break
-        end
-
-        def page_break?
-          @tag[:style][:display] == :page_break
+          @tag[:style][:display] == :break
         end
 
         def end_verbatim?
           @tag[:style][:white_space] == :pre
-        end
-
-        def end_box?
-          @tag[:style][:display] == :block
         end
       end
 

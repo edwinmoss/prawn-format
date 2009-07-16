@@ -8,15 +8,41 @@ module Prawn
     def self.included(mod)
       mod.send :alias_method, :text_without_formatting, :text
       mod.send :alias_method, :text, :text_with_formatting
+
+      mod.send :alias_method, :width_of_without_formatting, :width_of
+      mod.send :alias_method, :width_of, :width_of_with_formatting
+
+      mod.send :alias_method, :height_of_without_formatting, :height_of
+      mod.send :alias_method, :height_of, :height_of_with_formatting
     end
 
-    def text_with_formatting(text, options={})
-      plain = options.key?(:plain) ? options[:plain] : text !~ /<|&(?:#x?)?\w+;/
-
-      if plain
+    # Overloaded version of #text. Call via #text, rather than #text_with_formatting
+    # (see above, where it aliased to #text).
+    def text_with_formatting(text, options={}) #:nodoc:
+      if unformatted?(text, options)
         text_without_formatting(text, options)
       else
         format(text, options)
+      end
+    end
+
+    # Overloaded version of #height_of. Call via #height_of, rather than
+    # #height_of_with_formatting (see above, where it aliased to #height_of).
+    def height_of_with_formatting(string, line_width, size=font_size, options={}) #:nodoc:
+      if unformatted?(string, options)
+        height_of_without_formatting(string, line_width, size)
+      else
+        formatted_height(string, line_width, size, options)
+      end
+    end
+
+    # Overloaded version of #width_of. Call via #width_of, rather than
+    # #width_of_with_formatting (see above, where it aliased to #width_of).
+    def width_of_with_formatting(string, options={}) #:nodoc:
+      if unformatted?(string, options)
+        width_of_without_formatting(string, options)
+      else
+        formatted_width(string, options)
       end
     end
 
@@ -27,17 +53,16 @@ module Prawn
       :strong => { :display => :break },
       :center => { :display => :block, :text_align => :center },
       :div    => { :display => :block },
+      :code   => { :font_family => "Courier", :font_size => "90%" },
+      :em     => { :font_style => :italic },
       :font   => { :meta => { :face => :font_family, :color => :color, :size => :font_size } },
-      :h1     => { :display => :block, :text_align => :center, :font_size => "3em", :font_weight => :bold, :margin_bottom => "1em" },
-      :h2     => { :display => :block, :text_align => :center, :font_size => "2em", :font_weight => :bold, :margin_bottom => "1em" },
-      :h3     => { :display => :block, :text_align => :center, :font_size => "1.2em", :font_weight => :bold, :margin_bottom => "1em" },
       :i      => { :font_style => :italic },
-      :p      => { :display => :block, :text_indent => "3em" },
-      :page   => { :display => :page_break },
-      :pre    => { :display => :block, :white_space => :pre, :font_family => "Courier" },
+      :pre    => { :white_space => :pre, :font_family => "Courier", :font_size => "90%" },
       :span   => {},
+      :strong => { :font_weight => :bold },
       :sub    => { :vertical_align => :sub, :font_size => "70%" },
       :sup    => { :vertical_align => :super, :font_size => "70%" },
+      :tt     => { :font_family => "Courier" },
       :u      => { :text_decoration => :underline },
     }.freeze
 
@@ -95,8 +120,6 @@ module Prawn
       real_x, real_y = translate(x, y)
 
       state = options[:state] || {}
-      return options[:state] if lines.empty?
-
       options[:align] ||= :left
 
       state = state.merge(:width => width,
@@ -106,6 +129,8 @@ module Prawn
 
       state[:cookies] ||= {}
       state[:pending_effects] ||= []
+
+      return state if lines.empty?
 
       text_object do |text|
         text.rotate(real_x, real_y, options[:rotate] || 0)
@@ -136,40 +161,6 @@ module Prawn
       end
     end
 
-    def format_positioned_text(text, x, y, options={})
-      helper = layout(text, options)
-      helper.width = 1_000_000 # large number to prevent wrapping
-      line = helper.next
-      draw_lines(x, y+line.ascent, line.width, [line], options)
-    end
-
-    def format_wrapped_text(text, options={})
-      helper  = layout(text, options)
-
-      columns = (options[:columns] || 1).to_i
-      gap     = columns > 1 ? (options[:gap] || 18) : 0
-      width   = bounds.width.to_f / columns
-      column  = 0
-      top     = self.y
-
-      until helper.done?
-        x = column * width
-        y = self.y - bounds.absolute_bottom
-        height = bounds.height > 0 ? bounds.height : bounds.absolute_top
-        self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => height)) + bounds.absolute_bottom
-
-        unless helper.done?
-          column += 1
-          self.y = top
-          if column >= columns
-            start_new_page
-            column = 0
-            top = self.y
-          end
-        end
-      end
-    end
-
     def text_object
       object = TextObject.new
 
@@ -181,6 +172,59 @@ module Prawn
       return object
     end
 
+    private
+
+      def unformatted?(text, options={})
+        # If they have a preference, use it
+        if options.key?(:plain)
+          return options[:plain]
+
+        # Otherwise, if they're asking for full-justification, we must assume
+        # the text is formatted (since Prawn's text() method has no full justification)
+        elsif options[:align] == :justify
+          return false
+
+        # Otherwise, look for tags or XML entities in the text
+        else
+          return text !~ /<|&(?:#x?)?\w+;/
+        end
+      end
+
+      def format_positioned_text(text, x, y, options={})
+        helper = layout(text, options)
+        line = helper.next
+        draw_lines(x, y+line.ascent, line.width, [line], options)
+      end
+
+      def format_wrapped_text(text, options={})
+        helper = layout(text, options)
+
+        until helper.done?
+          x = column * width
+          y = self.y - bounds.absolute_bottom
+          height = bounds.height > 0 ? bounds.height : bounds.absolute_top
+          self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => height)) + bounds.absolute_bottom
+
+          y = helper.fill(bounds.left, y, bounds.width, options.merge(:height => height))
+
+          if helper.done?
+            self.y = y + bounds.absolute_bottom
+          else
+            start_new_page
+          end
+        end
+      end
+
+      def formatted_height(string, line_width, size=font_size, options={})
+        helper = layout(string, options.merge(:size => size))
+        lines = helper.word_wrap(line_width)
+        return lines.inject(0) { |s, line| s + line.height }
+      end
+
+      def formatted_width(string, options={})
+        helper = layout(string, options)
+        helper.next.width
+      end
   end
 end
 

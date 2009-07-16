@@ -58,11 +58,16 @@ module Prawn
         @styles = options[:styles] || {}
 
         @state = State.new(document, :style => options[:style])
+        @lexer.verbatim = (@state.white_space == :pre)
 
         @action = :start
 
         @saved = []
         @tag_stack = []
+      end
+
+      def verbatim?
+        @lexer.verbatim
       end
 
       # Returns the next instruction from the stream. If there are no more

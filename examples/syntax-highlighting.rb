@@ -16,8 +16,6 @@ html = CodeRay.scan(File.read(__FILE__), :ruby).html(:line_numbers => :inline)
 
 # Use prawn and prawn/format to parse and format the HTML
 Prawn::Document.generate "syntax-highlighting.pdf", :page_layout => :landscape do
-  tags[:strong] = { :font_weight => :bold }
-
   styles :no  => { :color => "gray" },
          :c   => { :color => "#666" },
          :s   => { :color => "#d20" },

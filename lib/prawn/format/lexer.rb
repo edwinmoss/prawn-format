@@ -150,6 +150,7 @@ module Prawn
           "mdash" => "\xE2\x80\x94",
           "ndash" => "\xE2\x80\x93",
           "nbsp"  => "\xC2\xA0",
+          "bull"  => "\342\200\242",
           "quot"  => '"',
         }
 

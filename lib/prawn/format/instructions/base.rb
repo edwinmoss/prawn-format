@@ -36,10 +36,6 @@ module Prawn
           false
         end
 
-        def page_break?
-          false
-        end
-
         def discardable?
           false
         end
@@ -49,14 +45,6 @@ module Prawn
         end
 
         def end_verbatim?
-          false
-        end
-
-        def start_box?
-          false
-        end
-
-        def end_box?
           false
         end
 

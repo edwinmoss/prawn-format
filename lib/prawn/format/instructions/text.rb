@@ -57,7 +57,7 @@ module Prawn
         end
 
         def width(type=:all)
-          @width ||= @state.font.width_of(@text, :size => @state.font_size, :kerning => @state.kerning?)
+          @width ||= @state.font.compute_width_of(@text, :size => @state.font_size, :kerning => @state.kerning?)
 
           case type
           when :discardable then discardable? ? @width : 0
@@ -80,9 +80,7 @@ module Prawn
           end
           draw_state[:dx] += width
 
-          if state.text_align == :justify && draw_state[:padding]
-            draw_state[:dx] += draw_state[:padding] * spaces
-          end
+          draw_state[:dx] += draw_state[:padding] * spaces if draw_state[:padding]
         end
       end
 

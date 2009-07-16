@@ -16,12 +16,8 @@ module Prawn
           @tag = tag
         end
 
-        def width
-          state.text_indent || 0
-        end
-
         def draw(document, draw_state, options={})
-          draw_text_indent(document, draw_state)
+          draw_width(document, draw_state)
           draw_destination(document, draw_state)
           draw_link(document, draw_state)
           draw_underline(document, draw_state)
@@ -31,21 +27,21 @@ module Prawn
           @tag[:style][:white_space] == :pre
         end
 
-        def start_box?
-          @tag[:style][:display] == :block
-        end
-
         def style
           @tag[:style]
         end
 
+        def width
+          @state.width
+        end
+
         private
 
-          def draw_text_indent(document, draw_state)
-            return unless start_box?
-
-            draw_state[:dx] += state.text_indent
-            draw_state[:text].move_to(draw_state[:dx], draw_state[:dy])
+          def draw_width(document, draw_state)
+            if width > 0
+              draw_state[:dx] += width
+              draw_state[:text].move_to(draw_state[:dx], draw_state[:dy])
+            end
           end
 
           def draw_destination(document, draw_state)
@@ -70,7 +66,7 @@ module Prawn
               when /^fitbv:(.*)$/
                 [$1, document.dest_fit_bounds_vertically(x)]
               else
-                [tag[:style][:anchor], document.dest_xyz(document.bounds.absolute_left, document.bounds.absolute_top, nil)]
+                [tag[:style][:anchor], document.dest_fit_bounds]
               end
 
             document.add_dest(label, destination)
@@ -83,7 +79,7 @@ module Prawn
 
           def draw_underline(document, draw_state)
             return unless tag[:style][:text_decoration] == :underline
-            add_effect(Effects::Underline.new(draw_state[:dx]), draw_state)
+            add_effect(Effects::Underline.new(draw_state[:dx], @state), draw_state)
           end
 
           def add_effect(effect, draw_state)

@@ -199,12 +199,18 @@ module Prawn
       def format_wrapped_text(text, options={})
         helper = layout(text, options)
 
-        until helper.done?
-          x = column * width
-          y = self.y - bounds.absolute_bottom
-          height = bounds.height > 0 ? bounds.height : bounds.absolute_top
-          self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => height)) + bounds.absolute_bottom
+        start_new_page if self.y < bounds.absolute_bottom
 
+        until helper.done?
+          # My fix
+          # x = column * width
+          # y = self.y - bounds.absolute_bottom
+          # height = bounds.height > 0 ? bounds.height : bounds.absolute_top
+          # self.y = helper.fill(x, y, options.merge(:width => width - gap, :height => height)) + bounds.absolute_bottom
+          # Let's try their fix
+          y = self.y - bounds.absolute_bottom
+          height = bounds.stretchy? ? bounds.absolute_top : y
+          
           y = helper.fill(bounds.left, y, bounds.width, options.merge(:height => height))
 
           if helper.done?
